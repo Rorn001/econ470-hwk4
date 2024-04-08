@@ -1,0 +1,174 @@
+---
+title: "huang-r-hwk4"
+author: Ron Huang
+data: \today{}
+
+format: 
+  pdf: 
+    toc: true
+    number-sections: true
+    colorlinks: true
+    highlight-style: atom-one-dark
+    code-hide: true
+    documentclass: article
+    fontsize: 12pt
+    geometry: margin=1in
+
+echo: false
+warning: false
+---
+# git@github.com:Rorn001/econ470-hwk4.git {.unnumbered}
+
+# Summarize the data
+
+```{python}
+import pickle
+
+with open('hwk4_Q1-9.pkl', 'rb') as f:
+   q1_fig, q2_fig, q3_rate_fig, q3_payment_fig, q4_fig, q5_fig, q5_table, q7_fig, q7_fig_2, q8_fig, q9_fig_1, q9_fig_2 = pickle.load(f)
+
+```
+
+## Remove all SNPs, 800-series plans, and prescription drug only plans (i.e., plans that do not offer Part C benefits). Provide a box and whisker plot showing the distribution of plan counts by county over time. Do you think that the number of plans is sufficient, too few, or too many?
+
+```{python}
+import matplotlib.pyplot as plt
+q1_fig
+```
+
+There might be too few plan per county, as on average there are less than 10 plans per county.
+
+\newpage
+
+## Provide bar graphs showing the distribution of star ratings in 2010, 2012, and 2015. How has this distribution changed over time?
+
+```{python}
+q2_fig
+```
+
+The distribution changed from right skew to left skew over time. This suggests that the rating of plans has improved over time.
+
+\newpage
+
+## Plot the average benchmark payment over time from 2010 through 2015. How much has the average benchmark payment risen over the years?
+
+```{python}
+
+q3_rate_fig
+
+```
+
+```{python}
+q3_payment_fig
+
+```
+
+The benchmark payment has increased over time untill 2015, from 810 to 830, and dropped to 780 in 2015. The value of rebates has decreases over time consistently.  
+
+\newpage
+
+## Plot the average share of Medicare Advantage (relative to all Medicare eligibles) over time from 2010 through 2015. Has Medicare Advantage increased or decreased in popularity? How does this share correlate with benchmark payments?
+
+```{python}
+q4_fig
+
+```
+
+Over time, MA plans become more popular. This is negatively correlated with the benchmark payments. 
+
+\newpage
+
+
+# Estimate ATEs
+
+For the rest of the assignment, we’ll use a regression discontinuity design to estimate the average treatment effect from receiving a marginally higher rating. We’ll focus only on 2010.
+
+## Calculate the running variable underlying the star rating. Provide a table showing the number of plans that are rounded up into a 3-star, 3.5-star, 4-star, 4.5-star, and 5-star rating.
+
+```{python}
+q5_fig
+```
+
+```{python}
+q5_table
+```
+
+\newpage
+
+## Using the RD estimator with a bandwidth of 0.125, provide an estimate of the effect of receiving a 3-star versus a 2.5 star rating on enrollments. Repeat the exercise to estimate the effects at 3.5 stars, and summarize your results in a table.
+
+\begin{table}[H]
+\caption{Table 1 - RD Results for bandwidth 0.125}
+\label{}
+\begin{center}
+\begin{tabular}{lll}
+\hline
+                  & star=3   & star=3.5  \\
+\hline
+Intercept         & -0.14**  & 0.08      \\
+                  & (0.06)   & (0.09)    \\
+treat             & 0.19***  & 0.04      \\
+                  & (0.07)   & (0.11)    \\
+raw\_rating       & 0.06**   & -0.02     \\
+                  & (0.02)   & (0.03)    \\
+treat:raw\_rating & -0.07*** & -0.01     \\
+                  & (0.03)   & (0.03)    \\
+R-squared         & 0.00     & 0.00      \\
+R-squared Adj.    & 0.00     & 0.00      \\
+No. observations  & 5084     & 1801      \\
+\hline
+\end{tabular}
+\end{center}
+Standard errors in parentheses. \newline 
+* p<.1, ** p<.05, ***p<.01
+\end{table}
+
+\newpage
+
+## Repeat your results for bandwidhts of 0.1, 0.12, 0.13, 0.14, and 0.15 (again for 3 and 3.5 stars). Show all of the results in a graph. How sensitive are your findings to the choice of bandwidth?
+
+```{python}
+q7_fig
+
+```
+
+```{python}
+q7_fig_2
+
+```
+
+The standard errors of the treatment effect decrease as the bandwidth increases. Except for the very narrow bandwidth in each threshold values, the significance level is robust to the choice of bandwidths. The magnitude of the treatment effect slightly changes with the bandwidth, but the direction of the effect is more consistent across different bandwidths. 
+
+\newpage
+
+## Examine (graphically) whether contracts appear to manipulate the running variable. In other words, look at the distribution of the running variable before and after the relevent threshold values. What do you find?
+
+```{python}
+q8_fig
+
+```
+
+There seems to be more plans around the threshold values. More specifically, as we zoom in on the threshold values, we see a spike in the number of plans just above the threshold values and a drop in the number of plans just below the threshold values. This is more pronounced around star rating 3 than 3.5. This suggests that contracts may be manipulating the raw scores to jump over the threshold values.
+
+\newpage
+
+## Similar to question 4, examine whether plans just above the threshold values have different characteristics than contracts just below the threshold values. Use HMO and Part D status as your plan characteristics.
+
+```{python}
+q9_fig_1
+
+```
+
+```{python}
+q9_fig_2
+
+```
+
+In both cases, we see that plans just above the threshold values have more HMOs and Part Ds than plans just below the threshold values. This suggests that contracts of these two plan types may be manipulating the raw scores to jump over the threshold values to gain more market share.
+
+\newpage
+
+
+## Summarize your findings from 5-9. What is the effect of increasing a star rating on enrollments? Briefly explain your results.
+
+There are significant effects of rounding up the star rating on market shares. We see that near the threshold values, having marginally higher raw scores is correlated with more market shares than plan of margianlly lower scores, even though they are very likely to be the same in terms of quality. The distribution of plans and the characteristics of plans around the threshold values suggest that contracts may be manipulating the raw scores to jump over the threshold values to gain more market shares. However, the effect of rounding up the star rating on market shares is not as pronounced for 3.5 stars as it is for 3 stars, nor does difference betwene the distributions of plans around the threshold values. The treatment effect does seem to be sensitive to the choice of bandwidth. When we increase the bandwidth, the standard error of the treatment effect decreases. The variation in the magnitude of the treatment effect across different bandwidths suggests that there is a tradeoff between bias and variance in the RD estimator with different bandwidths.
